@@ -1,0 +1,9 @@
+---
+- name: Upgrade firmware on ILO
+
+  hosts: "{{ server }}"
+  tasks:
+  - name: "Upgrade firmware on ILO from managed server {{ server }}"
+    include_role:
+      name: ilo
+      tasks_from: firmware_upgrade

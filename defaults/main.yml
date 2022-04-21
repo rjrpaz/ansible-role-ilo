@@ -1,0 +1,7 @@
+---
+installer_directory: /var/tmp
+firmware_package: firmware-ilo4-2.80-1.1.i386.rpm
+
+ilo:
+  Gen9: ilo4
+  Gen10: ilo5

@@ -1,0 +1,131 @@
+- name: "Set default value for var supported"
+  set_fact:
+    supported: false
+
+- name: "Set supported Operating System types and versions"
+  set_fact:
+    supported: true
+  when:
+  # Only available for RedHat
+  - ansible_os_family == "RedHat" and ansible_distribution_version.split(".")[0]|int >= 6
+
+- name: "Run the playbook"
+  block:
+    - name: Get Proliant version
+      shell: /usr/sbin/dmidecode | grep "Product Name:" | head -n 1 | awk '{print $NF}'
+      register: dmi_decode_output
+      become: yes
+
+    - name: Save ilo model
+      set_fact:
+        ilo_model: "{{ ilo[dmi_decode_output.stdout] }}"
+
+    - name: Check if firmware is installed
+      yum:
+        name: "firmware-{{ ilo_model }}"
+      register: rpmout
+      failed_when: rpmout.rc != 0 and rpmout.rc != 126
+      ignore_errors: yes
+      changed_when: False
+      check_mode: no
+
+    - name: Install firmware
+      block:
+        - name: Copy firmware package
+          copy:
+            src: "{{ role_path }}/files/{{ firmware_package }}"
+            dest: "{{ installer_directory }}"
+            mode: u=rwx
+            backup: yes
+
+        - name: Install firmware package
+          yum:
+            name: "{{ installer_directory }}/{{ firmware_package }}"
+            state: present
+          become: yes
+          check_mode: no
+
+        - name: Clean installer
+          file:
+            path: "{{ installer_directory }}/{{firmware_package }}"
+            state: absent
+
+        - name: Get directory for installer binary
+          shell: "rpm -q -l firmware-{{ ilo_model }}  | head -n 1"
+          register: binDir
+
+        - name: Run installer
+          shell: "yes | {{ binDir.stdout }}/setup"
+          become: yes
+      when: rpmout.rc != 0
+
+    - name: Firmware is installed. Check if should be upgraded.
+      block:
+        - name: Get Firmware version intalled
+          shell: "rpm -qi firmware-{{ ilo_model }} | grep ^Version | awk '{print $3}'"
+          register: current_firmware
+          failed_when: rpmout.rc != 0
+          changed_when: False
+          check_mode: no
+
+        - name: Save current firmware version
+          set_fact:
+            current_firmware_version: "{{ current_firmware.stdout }}"
+
+        - name: Save proposed firmware version
+          set_fact:
+            firmware_version: "{{ firmware_package | regex_search('firmware-ilo.-([^-]*)', '\\1') }}"
+
+        - name: Installed Firmware version is older. Should be upgraded.
+          block:
+            - debug:
+                msg: "Installing last firmware version."
+
+            - name: Remove any previous trace of firmware package
+              file:
+                path: "{{ installer_directory }}/{{firmware_package }}"
+                state: absent
+
+            - name: Copy firmware package
+              copy:
+                src: "{{ firmware_directory }}/{{ firmware_package }}"
+                dest: "{{ installer_directory }}"
+                mode: u=rwx
+
+            - name: Install firmware package
+              yum:
+                name: "{{ installer_directory }}/{{ firmware_package }}"
+                state: present
+              become: yes
+              check_mode: no
+
+            - name: Clean installer
+              file:
+                path: "{{ installer_directory }}/{{firmware_package }}"
+                state: absent
+
+            - name: Get installer directory
+              shell: "rpm -q -l firmware-{{ ilo_model }}  | head -n 1"
+              register: binDir
+
+            - name: Run installer
+              shell: "yes | {{ binDir.stdout }}/setup"
+              become: yes
+
+          when: current_firmware_version is version(firmware_version, '<')
+
+        - debug:
+            msg: "Version {{ firmware_version }} is not older than current version ({{ current_firmware_version }}). Do nothing."
+          when: current_firmware_version is version(firmware_version, '>')
+
+        - debug:
+            msg: "This firmware is already installed"
+          when: current_firmware_version is version(firmware_version, '==')
+      when: rpmout.rc == 0
+  when: supported
+
+- name: This OS version/distribution is not supported
+  debug:
+    msg: "Playbook not supported in this Operating System/OS version"
+  when: not supported
+
