@@ -1,6 +1,6 @@
 galaxy_info:
   author: Roberto Paz
-  description: DevOps engineer
+  description: Role to manage ILO devices
   company: freelance
   role_name: ilo
   namespace: rjrpaz
