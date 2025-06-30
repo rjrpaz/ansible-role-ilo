@@ -52,4 +52,4 @@ BSD
 Author Information
 ------------------
 
-[https://github.com/rjrpaz/ansible-ilo](https://github.com/rjrpaz/ansible-ilo)
+[https://github.com/rjrpaz/ansible-role-ilo](https://github.com/rjrpaz/ansible-role-ilo)
