@@ -31,10 +31,10 @@ This role doesn't require any additional non-core roles.
 Example Playbook
 ----------------
 
-Check *tests/firmware_upgrade.yml* as an example of how to use this role. You can run the role like this (please remember to set [roles path](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path) properly to make this role reachable by the playbook):
+Check *tests/main.yml* as an example of how to use this role. You can run the role like this (please remember to set [roles path](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path) properly to make this role reachable by the playbook):
 
 ```bash
-$ ansible-playbook -u user -kK -i inventory_file firmware_upgrade.yml
+$ ansible-playbook -u user -kK -i inventory_file test.yml
  ...
 ```
 
