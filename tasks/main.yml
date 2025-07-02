@@ -1,2 +1,136 @@
----
-# tasks file for .
+- name: "Set default value for var supported"
+  ansible.builtin.set_fact:
+    supported: false
+
+- name: "Set supported Operating System types and versions"
+  ansible.builtin.set_fact:
+    supported: true
+  when:
+    # Only available for RedHat
+    - ansible_os_family == "RedHat" and ansible_distribution_version.split(".")[0]|int >= 6
+
+- name: "Run the playbook"
+  when: supported
+  block:
+    - name: Get Proliant version
+      ansible.builtin.shell: /usr/sbin/dmidecode | grep "Product Name:" | head -n 1 | awk '{print $NF}'
+      register: dmi_decode_output
+      changed_when: false
+      become: true
+
+    - name: Save ilo model
+      ansible.builtin.set_fact:
+        ilo_model: "{{ ilo[dmi_decode_output.stdout] }}"
+
+    - name: Check if firmware is installed
+      ansible.builtin.yum:
+        name: "firmware-{{ ilo_model }}"
+      register: rpmout
+      failed_when: rpmout.rc != 0 and rpmout.rc != 126
+      ignore_errors: true
+      changed_when: false
+      check_mode: false
+
+    - name: Install firmware
+      when: rpmout.rc == 0
+      block:
+        - name: Copy firmware package
+          ansible.builtin.copy:
+            src: "{{ role_path }}/files/{{ firmware_package }}"
+            dest: "{{ installer_directory }}"
+            mode: u=rwx
+            backup: true
+
+        - name: Install firmware package
+          ansible.builtin.yum:
+            name: "{{ installer_directory }}/{{ firmware_package }}"
+            state: present
+          become: true
+          check_mode: false
+
+        - name: Clean installer
+          ansible.builtin.file:
+            path: "{{ installer_directory }}/{{ firmware_package }}"
+            state: absent
+
+        - name: Get directory for installer binary
+          ansible.builtin.shell: "rpm -q -l firmware-{{ ilo_model }}  | head -n 1"
+          register: bin_dir
+          changed_when: false
+
+        - name: Run installer
+          ansible.builtin.shell: "yes | {{ bin_dir.stdout }}/setup"
+          changed_when: false
+          become: true
+
+    - name: Firmware is installed. Check if should be upgraded.
+      block:
+        - name: Get Firmware version intalled
+          ansible.builtin.shell: "rpm -qi firmware-{{ ilo_model }} | grep ^Version | awk '{print $3}'"
+          register: current_firmware
+          failed_when: rpmout.rc != 0
+          changed_when: false
+          check_mode: false
+
+        - name: Save current firmware version
+          ansible.builtin.set_fact:
+            current_firmware_version: "{{ current_firmware.stdout }}"
+
+        - name: Save proposed firmware version
+          ansible.builtin.set_fact:
+            firmware_version: "{{ firmware_package | regex_search('firmware-ilo.-([^-]*)', '\\1') }}"
+
+        - name: Installed Firmware version is older. Should be upgraded.
+          when: current_firmware_version is version(firmware_version, '<')
+          block:
+            - name: Installing last firmware version
+              ansible.builtin.debug:
+                msg: "Installing last firmware version."
+
+            - name: Remove any previous trace of firmware package
+              ansible.builtin.file:
+                path: "{{ installer_directory }}/{{ firmware_package }}"
+                state: absent
+
+            - name: Copy firmware package
+              ansible.builtin.copy:
+                src: "{{ firmware_directory }}/{{ firmware_package }}"
+                dest: "{{ installer_directory }}"
+                mode: u=rwx
+
+            - name: Install firmware package
+              ansible.builtin.yum:
+                name: "{{ installer_directory }}/{{ firmware_package }}"
+                state: present
+              become: true
+              check_mode: false
+
+            - name: Clean installer
+              ansible.builtin.file:
+                path: "{{ installer_directory }}/{{ firmware_package }}"
+                state: absent
+
+            - name: Get installer directory
+              ansible.builtin.shell: "rpm -q -l firmware-{{ ilo_model }}  | head -n 1"
+              register: bin_dir
+              changed_when: false
+
+            - name: Run installer
+              ansible.builtin.shell: "yes | {{ bin_dir.stdout }}/setup"
+              become: true
+              changed_when: false
+
+        - name: Proposed version is older than current version
+          ansible.builtin.debug:
+            msg: "Version {{ firmware_version }} is not older than current version ({{ current_firmware_version }}). Do nothing."
+          when: current_firmware_version is version(firmware_version, '>')
+
+        - name: Proposed version is the same than current version
+          ansible.builtin.debug:
+            msg: "This firmware is already installed"
+          when: current_firmware_version is version(firmware_version, '==')
+
+- name: This OS version/distribution is not supported
+  ansible.builtin.debug:
+    msg: "Playbook not supported in this Operating System/OS version"
+  when: not supported

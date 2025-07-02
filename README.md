@@ -31,18 +31,18 @@ This role doesn't require any additional non-core roles.
 Example Playbook
 ----------------
 
-Check *tests/firmware_upgrade.yml* as an example of how to use this role. You can run the role like this (please remember to set [roles path](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path) properly to make this role reachable by the playbook):
+Check *tests/main.yml* as an example of how to use this role. You can run the role like this (please remember to set [roles path](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path) properly to make this role reachable by the playbook):
 
 ```bash
-$ ansible-playbook -u user -kK --extra-vars="server=destVm" -i inventory_file firmware_upgrade.yml
+$ ansible-playbook -u user -kK -i inventory_file test.yml
  ...
 ```
 
 - *user*: user to log on the remote server using SSH. The user should be able to escalate superuser privileges.
 
-- *destVm*: server where this agent is going to be installed. It should exist in the *inventory_file* below. Name of a group of servers or the reserved word "all" can be used (check ansible documentation for more info).
-
 - *inventory_file*: inventory file including the list of servers where this playbook might be applied.
+
+You can restrict the role to a specific group of servers by adding it to the *inventory_file* (e.g. "all", "group_name") or using the *--limit* option to ansible-playbook.
 
 License
 -------
