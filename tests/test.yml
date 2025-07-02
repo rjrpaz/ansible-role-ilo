@@ -1,5 +1,8 @@
 ---
-- hosts: localhost
-  remote_user: root
-  roles:
-    - ilo
+- name: Upgrade firmware on ILO
+
+  hosts: "all"
+  tasks:
+    - name: "Upgrade firmware on ILO from managed server"
+      ansible.builtin.include_role:
+        name: ilo
