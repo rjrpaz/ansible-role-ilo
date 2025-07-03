@@ -1,9 +1,9 @@
 ---
 name: 'Publish latest release to Ansible Galaxy'
 
-on:
+on: # yamllint disable-line rule:truthy
 #   pull_request:
-#     branches: ["main", "stable", "release/v*"]        
+#     branches: ["main", "stable", "release/v*"]
   push:
     # branches:
     #   - 'main'
@@ -31,7 +31,7 @@ jobs:
   release:
     name: 'Publish to Ansible Galaxy'
     needs:
-      - lint    
+      - lint
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'checkout'

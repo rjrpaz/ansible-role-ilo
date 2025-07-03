@@ -13,7 +13,7 @@
   when: supported
   block:
     - name: Get Proliant version
-      ansible.builtin.shell: /usr/sbin/dmidecode | grep "Product Name:" | head -n 1 | awk '{print $NF}'
+      ansible.builtin.shell: set -o pipefail && /usr/sbin/dmidecode | grep "Product Name:" | head -n 1 | awk '{print $NF}'
       register: dmi_decode_output
       changed_when: false
       become: true
@@ -54,19 +54,19 @@
             state: absent
 
         - name: Get directory for installer binary
-          ansible.builtin.shell: "rpm -q -l firmware-{{ ilo_model }}  | head -n 1"
+          ansible.builtin.shell: set -o pipefail && rpm -q -l firmware-{{ ilo_model }}  | head -n 1
           register: bin_dir
           changed_when: false
 
         - name: Run installer
-          ansible.builtin.shell: "yes | {{ bin_dir.stdout }}/setup"
+          ansible.builtin.shell: set -o pipefail && yes | {{ bin_dir.stdout }}/setup
           changed_when: false
           become: true
 
     - name: Firmware is installed. Check if should be upgraded.
       block:
         - name: Get Firmware version intalled
-          ansible.builtin.shell: "rpm -qi firmware-{{ ilo_model }} | grep ^Version | awk '{print $3}'"
+          ansible.builtin.shell: set -o pipefail && rpm -qi firmware-{{ ilo_model }} | grep ^Version | awk '{print $3}'
           register: current_firmware
           failed_when: rpmout.rc != 0
           changed_when: false
@@ -111,12 +111,12 @@
                 state: absent
 
             - name: Get installer directory
-              ansible.builtin.shell: "rpm -q -l firmware-{{ ilo_model }}  | head -n 1"
+              ansible.builtin.shell: set -o pipefail && rpm -q -l firmware-{{ ilo_model }}  | head -n 1
               register: bin_dir
               changed_when: false
 
             - name: Run installer
-              ansible.builtin.shell: "yes | {{ bin_dir.stdout }}/setup"
+              ansible.builtin.shell: set -o pipefail && yes | {{ bin_dir.stdout }}/setup
               become: true
               changed_when: false
 
