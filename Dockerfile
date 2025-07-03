@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM ubuntu:24.04
 
 # Install ansible, ansible-lint, python-pip, sshpass
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update \
