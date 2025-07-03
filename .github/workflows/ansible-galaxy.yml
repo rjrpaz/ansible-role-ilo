@@ -16,8 +16,9 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-        with:
-          path: "${{ github.repository }}"
+        # with:
+        #   path: "${{ github.repository }}"
+
       - name: Run ansible-lint
         uses: ansible/ansible-lint@main
         # # optional (see below):
