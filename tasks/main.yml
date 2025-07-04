@@ -23,7 +23,7 @@
         ilo_model: "{{ ilo[dmi_decode_output.stdout] }}"
 
     - name: Check if firmware is installed
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: "firmware-{{ ilo_model }}"
       register: rpmout
       failed_when: rpmout.rc != 0 and rpmout.rc != 126
@@ -42,7 +42,7 @@
             backup: true
 
         - name: Install firmware package
-          ansible.builtin.yum:
+          ansible.builtin.dnf:
             name: "{{ installer_directory }}/{{ firmware_package }}"
             state: present
           become: true
@@ -99,7 +99,7 @@
                 mode: u=rwx
 
             - name: Install firmware package
-              ansible.builtin.yum:
+              ansible.builtin.dnf:
                 name: "{{ installer_directory }}/{{ firmware_package }}"
                 state: present
               become: true
