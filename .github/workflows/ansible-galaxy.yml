@@ -1,0 +1,44 @@
+---
+name: 'Publish latest release to Ansible Galaxy'
+
+on: # yamllint disable-line rule:truthy
+  pull_request:
+    branches: ["main", "stable", "release/v*"]
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch: {}
+
+jobs:
+  lint:
+    name: 'Run ansible-lint'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        # with:
+        #   path: "${{ github.repository }}"
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@main
+        # # optional (see below):
+        with:
+          args: ""
+          setup_python: "true"
+          working_directory: ""
+          requirements_file: ""
+
+  release:
+    name: 'Publish to Ansible Galaxy'
+    needs:
+      - lint
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v4'
+
+      - name: 'galaxy'
+        uses: 'robertdebock/galaxy-action@1.2.0'
+        with:
+          galaxy_api_key: '${{ secrets.GALAXY_API_KEY }}'
+        #   git_branch: 'add-gh-actions'
