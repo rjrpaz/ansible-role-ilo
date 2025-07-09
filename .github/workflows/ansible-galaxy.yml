@@ -2,11 +2,11 @@
 name: 'Publish latest release to Ansible Galaxy'
 
 on: # yamllint disable-line rule:truthy
-#   pull_request:
-#     branches: ["main", "stable", "release/v*"]
+  pull_request:
+    branches: ["main", "stable", "release/v*"]
   push:
-    # branches:
-    #   - 'main'
+    branches:
+      - 'main'
   workflow_dispatch: {}
 
 jobs:
@@ -41,4 +41,4 @@ jobs:
         uses: 'robertdebock/galaxy-action@1.2.0'
         with:
           galaxy_api_key: '${{ secrets.GALAXY_API_KEY }}'
-          git_branch: 'add-gh-actions'
+        #   git_branch: 'add-gh-actions'
