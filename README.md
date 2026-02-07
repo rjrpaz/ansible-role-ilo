@@ -54,7 +54,7 @@ Use the fully qualified collection name (FQCN) as recommended:
 
 ## Requirements
 
-- Ansible 5.0 or later (ansible-core 2.12+)
+- Ansible 5.0+ or ansible-core 2.15+
 - HPE ILO firmware RPM packages in the `roles/ilo/files/` directory
 
 ## Role Variables
