@@ -54,7 +54,7 @@ Use the fully qualified collection name (FQCN) as recommended:
 
 ## Requirements
 
-- Ansible 2.15 or later
+- Ansible 5.0 or later (ansible-core 2.12+)
 - HPE ILO firmware RPM packages in the `roles/ilo/files/` directory
 
 ## Role Variables
@@ -167,7 +167,7 @@ ansible-playbook tests/test.yml
 The project includes GitHub Actions workflows that:
 
 - Run `ansible-lint` on all branches
-- Test against multiple Ansible versions (4.x, 5.x, 6.x)
+- Test against multiple Ansible versions (5.x, 6.x, 7.x) with compatible Python versions
 - Build and validate the collection
 - Publish to Galaxy (main branch only)
 

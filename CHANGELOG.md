@@ -19,7 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `installer_directory` → `ilo_installer_directory`
   - `firmware_package` → `ilo_firmware_package`
   - `ilo` → `ilo_versions`
-- Updated minimum Ansible version requirement to 2.15.0
+- Updated minimum Ansible version requirement to 5.0.0 (ansible-core 2.12+)
+- Updated CI/CD pipeline to test against Ansible 5.x, 6.x, 7.x with compatible Python versions
+- Removed testing for deprecated Ansible 4.x due to Python 3.14+ compatibility issues
 - Converted repository structure to Ansible collection format
 
 ### Fixed

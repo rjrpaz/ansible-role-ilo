@@ -29,7 +29,13 @@ jobs:
     runs-on: 'ubuntu-latest'
     strategy:
       matrix:
-        ansible-version: [">=4.0,<5.0", ">=5.0,<6.0", ">=6.0,<7.0"]
+        include:
+          - ansible-version: ">=5.0,<6.0"
+            python-version: "3.9"
+          - ansible-version: ">=6.0,<7.0"
+            python-version: "3.10"
+          - ansible-version: ">=7.0,<8.0"
+            python-version: "3.11"
     steps:
       - name: 'Checkout code'
         uses: actions/checkout@v4
@@ -37,7 +43,7 @@ jobs:
       - name: 'Set up Python'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: ${{ matrix.python-version }}
 
       - name: 'Install Ansible and dependencies'
         run: |
