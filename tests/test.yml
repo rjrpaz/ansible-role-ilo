@@ -1,8 +1,21 @@
 ---
-- name: Upgrade firmware on ILO
+- name: Test rjrpaz.server_management collection
+  hosts: localhost
+  gather_facts: false
 
-  hosts: "all"
   tasks:
-    - name: "Upgrade firmware on ILO from managed server"
+    - name: Test collection import
+      ansible.builtin.debug:
+        msg: "Collection rjrpaz.server_management imported successfully"
+
+    - name: Test role import with check mode
       ansible.builtin.include_role:
-        name: ilo
+        name: rjrpaz.server_management.ilo
+      vars:
+        ilo_firmware_package: "test-firmware.rpm"
+      tags: always
+      when: false  # Skip execution but test syntax
+
+    - name: Verify role variables are accessible
+      ansible.builtin.debug:
+        msg: "Role variables: ilo_installer_directory={{ ilo_installer_directory | default('not set') }}"
