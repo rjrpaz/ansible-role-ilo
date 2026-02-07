@@ -1,55 +1,50 @@
-ilo
-=========
+# Ansible Collection - rjrpaz.server_management
 
-A simple role to manage ilo from Linux (Redhat) servers.
+A collection for server management tasks including ILO firmware management.
 
-This role is a work in progress. For now it just install/upgrade the ILO firmware using OS packet management tools.
+## Included content
 
-Requirements
-------------
+### Roles
 
-This role assumes you already downloaded desired firmware version rpm package to the *files/* directory.
+- **ilo**: Role to manage ILO devices on HPE servers
 
-Latest version for the firmware can be found [here](https://support.hpe.com/connect/s/softwaredetails?language=es&softwareId=MTX_84b8360ec9734362bab837f82b&tab=revisionHistory).
+## Installing this collection
 
-Check *revision history* link and select latest version. Then select the download link and you will find the rpm file.
-
-Role Variables
---------------
-
-- installer_directory: directory where the rpm package is going to be copied (default value: /var/tmp)
-- firmware_package: name of the rpm file to be copied. It should be located in *files/* (default value: firmware-ilo4-2.80-1.1.i386.rpm)
-- ilo: dictionary that defines ILO version according to HP server model. Current values are:
-  - Gen9: ilo4
-  - Gen10: ilo5
-
-Dependencies
-------------
-
-This role doesn't require any additional non-core roles.
-
-Example Playbook
-----------------
-
-Check *tests/main.yml* as an example of how to use this role. You can run the role like this (please remember to set [roles path](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path) properly to make this role reachable by the playbook):
+You can install the rjrpaz.server_management collection with the Ansible Galaxy CLI:
 
 ```bash
-$ ansible-playbook -u user -kK -i inventory_file test.yml
- ...
+ansible-galaxy collection install rjrpaz.server_management
 ```
 
-- *user*: user to log on the remote server using SSH. The user should be able to escalate superuser privileges.
+## Using this collection
 
-- *inventory_file*: inventory file including the list of servers where this playbook might be applied.
+### Using the ilo role
 
-You can restrict the role to a specific group of servers by adding it to the *inventory_file* (e.g. "all", "group_name") or using the *--limit* option to ansible-playbook.
+```yaml
+- hosts: servers
+  collections:
+    - rjrpaz.server_management
+  roles:
+    - ilo
+```
 
-License
--------
+Or with the fully qualified collection name:
 
-BSD
+```yaml
+- hosts: servers
+  roles:
+    - rjrpaz.server_management.ilo
+```
 
-Author Information
-------------------
+## Requirements
 
-[https://github.com/rjrpaz/ansible-role-ilo](https://github.com/rjrpaz/ansible-role-ilo)
+- Ansible 2.9 or later
+- HPE ILO firmware RPM packages in the `files/` directory
+
+## License
+
+MIT
+
+## Author Information
+
+Roberto Paz - [https://github.com/rjrpaz/ansible-role-ilo](https://github.com/rjrpaz/ansible-role-ilo)

@@ -1,2 +1,11 @@
-files/*
+# IDE and development files
+.claude
+
+# Ansible cache
 .ansible
+
+# Collection build artifacts
+*.tar.gz
+
+# Role-specific files (firmware packages should be managed separately)
+roles/*/files/*
