@@ -20,7 +20,7 @@
 
     - name: Save ilo model
       ansible.builtin.set_fact:
-        ilo_model: "{{ ilo[dmi_decode_output.stdout] }}"
+        ilo_model: "{{ ilo_versions[dmi_decode_output.stdout] }}"
 
     - name: Check if firmware is installed
       ansible.builtin.dnf:
@@ -36,21 +36,21 @@
       block:
         - name: Copy firmware package
           ansible.builtin.copy:
-            src: "{{ role_path }}/files/{{ firmware_package }}"
-            dest: "{{ installer_directory }}"
+            src: "{{ role_path }}/files/{{ ilo_firmware_package }}"
+            dest: "{{ ilo_installer_directory }}"
             mode: u=rwx
             backup: true
 
         - name: Install firmware package
           ansible.builtin.dnf:
-            name: "{{ installer_directory }}/{{ firmware_package }}"
+            name: "{{ ilo_installer_directory }}/{{ ilo_firmware_package }}"
             state: present
           become: true
           check_mode: false
 
         - name: Clean installer
           ansible.builtin.file:
-            path: "{{ installer_directory }}/{{ firmware_package }}"
+            path: "{{ ilo_installer_directory }}/{{ ilo_firmware_package }}"
             state: absent
 
         - name: Get directory for installer binary
@@ -78,7 +78,7 @@
 
         - name: Save proposed firmware version
           ansible.builtin.set_fact:
-            firmware_version: "{{ firmware_package | regex_search('firmware-ilo.-([^-]*)', '\\1') }}"
+            firmware_version: "{{ ilo_firmware_package | regex_search('firmware-ilo.-([^-]*)', '\\1') }}"
 
         - name: Installed Firmware version is older. Should be upgraded.
           when: current_firmware_version is version(firmware_version, '<')
@@ -89,25 +89,25 @@
 
             - name: Remove any previous trace of firmware package
               ansible.builtin.file:
-                path: "{{ installer_directory }}/{{ firmware_package }}"
+                path: "{{ ilo_installer_directory }}/{{ ilo_firmware_package }}"
                 state: absent
 
             - name: Copy firmware package
               ansible.builtin.copy:
-                src: "{{ firmware_directory }}/{{ firmware_package }}"
-                dest: "{{ installer_directory }}"
+                src: "{{ role_path }}/files/{{ ilo_firmware_package }}"
+                dest: "{{ ilo_installer_directory }}"
                 mode: u=rwx
 
             - name: Install firmware package
               ansible.builtin.dnf:
-                name: "{{ installer_directory }}/{{ firmware_package }}"
+                name: "{{ ilo_installer_directory }}/{{ ilo_firmware_package }}"
                 state: present
               become: true
               check_mode: false
 
             - name: Clean installer
               ansible.builtin.file:
-                path: "{{ installer_directory }}/{{ firmware_package }}"
+                path: "{{ ilo_installer_directory }}/{{ ilo_firmware_package }}"
                 state: absent
 
             - name: Get installer directory

@@ -38,8 +38,25 @@ Or with the fully qualified collection name:
 
 ## Requirements
 
-- Ansible 2.9 or later
-- HPE ILO firmware RPM packages in the `files/` directory
+- Ansible 2.15 or later
+- HPE ILO firmware RPM packages in the `roles/ilo/files/` directory
+
+## Role Variables
+
+Available variables are listed below, along with default values (see `roles/ilo/defaults/main.yml`):
+
+```yaml
+# Directory where the rpm package will be copied
+ilo_installer_directory: /var/tmp
+
+# Name of the rpm file to be copied (should be in roles/ilo/files/)
+ilo_firmware_package: firmware-ilo4-2.80-1.1.i386.rpm
+
+# ILO version mapping by HP server generation
+ilo_versions:
+  Gen9: ilo4
+  Gen10: ilo5
+```
 
 ## License
 
